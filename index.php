@@ -138,30 +138,42 @@ main input[type="submit"]:hover{
             <a href="index1.php">ForgotPassword?</a>
                        
 <?php
+if ($_SERVER['REQUEST_METHOD']=='POST') {
 $username=$_POST['username'];
 $password=$_POST['password'];
-$pass="grep 'password=$password' cred.txt | cut -f 2 -d '&' | cut -f 2 -d '=' | cut -d'[' -f 1";
-$user="grep 'username=$username' cred.txt | cut -f 1 -d '&' | cut -f 2 -d '=' | cut -d'[' -f 1";
-$check_user=shell_exec($user);
-$check_pass=shell_exec($pass);
+$hash = password_hash($password, PASSWORD_DEFAULT);
+session_start();
+$con = mysqli_connect('localhost','akarsh','PASSWORD123','CRED');
+$login = $_POST['submit'];
+if ($login) {
+$sql = "select password from info where username = '$username'";
+$result = mysqli_query($con,$sql);
+$check = mysqli_fetch_assoc($result);
+$pass = $check['password'];
+if (password_verify($password,$pass)) {
+echo "Login Successful";}
+else {
+echo "Invalid Credentials";} }
+else {
+$register = $_POST['register'];
+if ($register)
+{
+$mysql = "select * from info where username = '$username' ";
+$result_check = mysqli_query($con,$mysql);
+$check_true = mysqli_fetch_assoc($result_check);
+if ($check_true) {
+echo "Username Exists"; }
+else {
+mysqli_select_db($con,'CRED');
+$q = "insert into info(username,password) values('$username','$hash')";
+mysqli_query($con,$q);
+echo "User Added";
+}}}
 if ($_POST['check']==true)
 {
 setcookie("User",$username, time()+2*24*60*60);
 setcookie("Password",$password, time()+2*24*60*60);
-}
-if ($check_user && $check_pass)
-{
-echo "Login Successful";
-}
-elseif ($check_user)
-{
-echo "Incorrect Password";
-}
-else
-{
-echo "User added!";
-}
-
+}}
 ?>
 
       
