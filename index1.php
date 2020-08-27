@@ -132,11 +132,24 @@ main input[type="submit"]:hover{
                 <input type="submit" name="submit" value="SUBMIT" >
                 <br>
             </form>
-            <?php
+                        <?php
+if ($_SERVER['REQUEST_METHOD']=='POST') {
 $name=$_POST['username'];
-$exec="grep 'username=$name' cred.txt | cut -f 2 -d '&' | cut -f 2 -d '=' | cut -d'[' -f 1";
-$output=shell_exec($exec);
-echo $output;
+session_start();
+$con = mysqli_connect('localhost','akarsh','PASSWORD123','CRED');
+$sql = "select username from info where username = '$name'";
+$result = mysqli_query($con,$sql);
+$check = mysqli_fetch_assoc($result);
+$exist = $check['username'];
+if ($exist==$name) {
+mail($name,"Change Password","anything.com/index2.php");
+echo "reset link sent to your email account!";
+}
+else{
+echo "the user email does not exist";
+}
+
+}
 
 ?>
                     
